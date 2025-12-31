@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Sayangku - 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- RESET & BASIC SETUP --- */
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            /* Background Gradient Bergerak */
+            background: linear-gradient(300deg, #0f2027, #203a43, #2c5364, #1e130c);
+            background-size: 240% 240%;
+            animation: gradientBG 15s ease infinite;
+            font-family: 'Nunito Sans', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- 1. WRAPPER AMPLOP (TAMPILAN AWAL) --- */
+        .envelope-wrapper {
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .envelope-container {
+            position: relative;
+            width: 300px; height: 200px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease, opacity 0.8s ease;
+            z-index: 10;
+        }
+        
+        .envelope-container:hover { transform: scale(1.02); }
+
+        .envelope-body {
+            position: absolute; bottom: 0; width: 100%; height: 100%;
+            background-color: #a83232;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            z-index: 1;
+        }
+
+        .envelope-flap {
+            position: absolute; top: 0; left: 0;
+            width: 0; height: 0; 
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 110px solid #c0392b;
+            transform-origin: top;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+        }
+
+        .envelope-pocket {
+            position: absolute; bottom: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 150px solid #922a2a;
+            border-right: 150px solid #922a2a;
+            border-top: 100px solid transparent;
+            border-bottom: 100px solid transparent;
+            border-radius: 0 0 10px 10px;
+            z-index: 2;
+        }
+
+        .seal {
+            position: absolute; top: 85px; left: 50%;
+            transform: translateX(-50%);
+            width: 45px; height: 45px;
+            background: radial-gradient(circle at 30% 30%, #d4af37, #b7950b);
+            border-radius: 50%; z-index: 6;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: #785f00;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            border: 2px solid #b7950b;
+            transition: opacity 0.4s ease;
+        }
+
+        .click-hint {
+            position: absolute; bottom: -50px; width: 100%;
+            text-align: center; color: rgba(255,255,255,0.6);
+            font-size: 0.9rem; letter-spacing: 1.5px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+        /* --- 2. MODAL SURAT --- */
+        .letter-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 20;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .letter-paper {
+            width: 90%; max-width: 600px; height: 85vh;
+            background: #fffaf0; border-radius: 8px; padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative; overflow-y: auto;
+            transform: translateY(100vh) scale(0.8);
+            transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .letter-paper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: #a83232; border-radius: 8px 8px 0 0;}
+
+        /* --- 3. TYPOGRAPHY --- */
+        .content { color: #333; line-height: 1.8; font-size: 1rem; text-align: left; }
+        .content h1 { font-family: 'Dancing Script', cursive; font-size: 3rem; color: #a83232; text-align: center; margin-bottom: 30px; margin-top: 10px; }
+        .content p { margin-bottom: 20px; }
+        .highlight { color: #a83232; font-weight: 700; }
+        .english-quote { background-color: rgba(168, 50, 50, 0.08); border-left: 4px solid #a83232; padding: 25px; margin-top: 40px; margin-bottom: 20px; font-style: italic; text-align: center; color: #555; font-size: 1.1rem;}
+        .letter-paper::-webkit-scrollbar { width: 6px; }
+        .letter-paper::-webkit-scrollbar-track { background: transparent; }
+        .letter-paper::-webkit-scrollbar-thumb { background: #d19c9c; border-radius: 3px; }
+
+        /* --- 4. JS CLASSES --- */
+        .envelope-container.open-flap .envelope-flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-container.open-flap .seal { opacity: 0; }
+        .envelope-container.fall-down { transform: translateY(150px) scale(0.9); opacity: 0; pointer-events: none; }
+        .letter-overlay.show { opacity: 1; pointer-events: auto; }
+        .letter-overlay.show .letter-paper { transform: translateY(0) scale(1); }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="lagu.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="envelope-wrapper" id="envelopeWrapper">
+        <div class="envelope-container" onclick="triggerOpenSequence()">
+            <div class="envelope-flap"></div>
+            <div class="envelope-pocket"></div>
+            <div class="envelope-body"></div>
+            <div class="seal">❤</div>
+            <div class="click-hint">Sentuh untuk membuka</div>
+        </div>
+    </div>
+
+    <div class="letter-overlay" id="letterOverlay">
+        <div class="letter-paper">
+            <div class="content">
+                <h1>Dear My Love...</h1>
+
+                <p><strong>Pertama-tama,</strong> I mau say thank you ke U sebanyak-banyaknya sayangku, atas 1 tahun yang udh kita lewatin bareng. Tahun 2025 ini terasa sangat singkat yaa, engga kerasa udh mau 2026 lagi. Mulai dari awal tahun yang banyak banget surprisenya, I kira waktu di awal tahun U engga bisa ketemu sama I karena prank yang U buat pas I ulang tahun.</p>
+
+                <p>Thank you sayang udh jadi <span class="highlight">the best girlfriend that I have</span>. U selalu berusaha yang terbaik buat jadi pacar I, walaupun kadang I-nya menjadi orang yang menyebalkan, dan kadang bikin U meragukan tentang I. Tapi thank you sayangku, U udh selalu ada di sebelah I, dukung I tahun 2025 ini.</p>
+                
+                <p>U udh nemenin ngelewatin masa magang I yang kadang naik turun, apalagi waktu di AFI yang lemburnya kadang engga masuk di logika. I bersyukur banget bisa punya U, punya seseorang yang selalu ada di sebelah I ngasih support, ngasih dukungan, dan pastinya sayang sama I dengan begitu tulus.</p>
+
+                <p><strong>Terus I juga mau bilang sama U...</strong> Jangan pernah merasa diri U engga pantes atau merasa dirinya terlalu rendah sayangku. Karena I selalu percaya U punya <em>value</em> yang sangat tinggi, nilai yang engga semua orang punya. Tahun 2025 ini I belajar banyak banget dari U. I terlalu bergantung sama U, selalu menunggu jawaban dari setiap kebingungan I.</p>
+                
+                <p>Mungkin kalau engga ada U di tahun ini, I engga akan maju sampe di sini sayang. Kadang I merasa jalan hidup I begitu-begitu aja, engga ada yang menarik, engga ada tantangannya, lebih ke pasrah hidup I mau gimana. Kadang I juga suka nyerah kalau misalkan ada masalah yang berat atau udh terlalu ribet menurut I.</p>
+
+                <p><strong>Tapi semua itu berubah.</strong> Kehadiran U dalam hidup I itu sangat berarti. U ngubah cara pikir I tentang hidup ini. U ngasih semangat bara api buat I bisa berubah jadi orang yang berusaha (<em>hard working</em>) kalau mau mencapai goals bersama kita. Di situ juga I merasa se-<em>worth it</em> itu untuk I korbankan semuanya demi bisa sampe titik yang kita mau nanti. Makanya I rela ngorbanin apapun supaya kita bisa mencapai goals yang kita mau, itu janji I buat U nanti.</p>
+                
+                <p>I mau jujur, mungkin dulu I selalu minta punya pasangan yang sayang sama I aja. Tapi sekarang I ngerasa sayang doang mungkin engga cukup, butuh usaha dan pengorbanan dari setiap pasangannya. Jadi makanya I minta nanti di tahun 2026 yang akan datang ini, I bisa mencapai resolusinya I sayangku. I mau U bisa hidup yang senang, hidup bahagia.</p>
+                
+                <p>Wish dan resolusi I sama, kalau selama ini I engga bisa buat U merasa disayang banget, di Tahun 2026 ini I akan mewujudkan itu semua. I berusaha buat ngorbanin semuanya sayang. Gapapa cape, gapapa takut, gapapa ngeluh, tapi yang penting satu: tetep yang terpenting adalah U-nya sayang.</p>
+                
+                <p>I mau supaya U bisa menikmati hidup U, I mau U bisa bersyukur sudah sampai di titik ini, dan bangga atas apa yang U punya. Makanya I mau merubah diri I supaya bisa dibanggain sama U, dan bisa buat U menjadi senang.</p>
+                
+                <p>Walaupun kemarin I sempet takut, sempet merasa rendah, merasa diri I itu lemah engga bisa... tapi setelah I dengar kata-kata U kemarin, itu buat I menjadi sadar. Kalau misalkan I nyerah duluan, kalau misalkan I menyerah sekarang, berarti I kalah sekarang? I engga mau. I engga mau berhenti di titik ini sayang. I mau terus berkembang sama U, I mau jadi orang yang lebih berguna lagi, berdampak bagi semua orang terutama orang terdekat I, apalagi <span class="highlight">someone that I cherish the most</span>.</p>
+                
+                <p>So please sayangku, jangan merasa seperti itu. Seharusnya I yang merasa down. I kadang merasa engga worth it buat U, U bisa dapet yang lebih baik, lebih dari I segalanya. Tapi U tetep bilang ke I kalau U bakal selalu dukung I dimanapun itu, di kondisi apapun itu. Dari situ I sadar kalau terus merasa rendah, terus merasa kita engga pantes, lama-lama bakal beneran tidak pantas. Tapi kalau I buktiin ke U kalau I pantes dan berusaha, pasti bisa kok I tunjukin.</p>
+                
+                <p>Cuman I juga engga bisa bohong, secara real-nya pastinya buat I sendiri ada merasa gagal dan butuh support lagi dari orang yang tepat. I manusia engga bisa hidup sendiri, engga bisa berjuang sendiri. Kelak juga pasti I akan membutuhkan U sebagai seseorang yang mendukung di waktu I jatuh.</p>
+                
+                <p>Dulu sebelum I punya U, I pernah sampe merasa kalau hidup I itu engga berguna dan engga ada tujuannya. Jadi pernah juga I merasa kek "mayat hidup". Sampe di situ I minta di setiap doanya I, buat bisa punya seseorang yang sayang sama diri I. Bukan untuk disombongkan, atau bukan untuk dibanggakan, tapi karena I merasa kesepian kalau I harus berjuang dan berusaha sendiri.</p>
+                
+                <p>Di waktu I mencoba pertama, di waktu I semester 1 yang U tau ceritanya sayang, di situ I gagal. Sebenernya itu I udh nyerah buat lanjut lagi, I udh merasa kek udahlah hidup I biarkan mengambang di atas air aja, engga tau mau dibawa kemana, engga tau mau jadi apa nantinya, engga ada yang peduli juga sama I.</p>
+                
+                <p><strong>U datang di waktu sekarang ini untuk nunjukin ke I,</strong> kalau hidup itu memang ada tujuannya. Hidup itu pasti ada goals yang harus diselesaikan. Perjuangan dan harapan itu penting dalam hidup. Hidup tanpa harapan itu tersesat, hidup penuh perjuangan tanpa harapan itu namanya ambisi. U ngasih tau ke I kalau I punya perjuangan dan punya harapan, U juga bisa punya harapan ke I. Dari situ I sadar kalau hidup ini engga bisa dijalankan hanya dengan harapan.</p>
+                
+                <p>Sorry yaa sayang jadinya I curhat lagi di sini. Tapi I juga sambil mau ngasih tau ke U sayang, kalau sepenting itu diri U di hidup I. Jujur I engga tau lagi kalau misalkan U engga ada, ya kek harapan I ilang sayang. U ada di dalam hidup I itu ngasih warna dalam diri I, jadi payung buat nutupin hujan. I engga akan pernah bisa dewasa tanpa diri U sayang.</p>
+                
+                <p>Tahun 2026 pastinya engga akan berjalan lebih mudah dari tahun 2025 sayang. Pasti di tahun itu banyak banget cobaan yang akan dateng di hubungan kita, banyak banget hal yang bisa membuat kita dekat atau mungkin sebaliknya, tergantung dari diri kita yang menanggapi masalah itu. Yuk sama-sama bareng sama I, kita belajar jadi hubungan yang lebih dewasa. I juga belajar dari U.</p>
+                
+                <div class="english-quote">
+                    "I'm so lucky to have you in my life, and I know until the very end that I will walk the same path as you.<br>
+                    Happy New Year, my love. I look forward to our future together."<br>
+                    <br>
+                    <strong>- 💖 -</strong>
+                </div>
+
+                <p style="text-align: center; margin-top: 50px; font-size: 0.8rem; color: #888;">Scroll untuk membaca</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function triggerOpenSequence() {
+            const envelopeWrapper = document.getElementById('envelopeWrapper');
+            const envelopeContainer = document.querySelector('.envelope-container');
+            const letterOverlay = document.getElementById('letterOverlay');
+            const audio = document.getElementById('bgMusic');
+
+            // 1. Play Audio (Harus interaksi user agar jalan di HP)
+            audio.play().catch(error => {
+                console.log("Audio autoplay failed:", error);
+            });
+
+            // 2. Hentikan animasi melayang
+            envelopeWrapper.style.animation = 'none';
+
+            // 3. Buka Flap
+            envelopeContainer.classList.add('open-flap');
+
+            // 4. Animasi Lanjutan
+            setTimeout(() => {
+                envelopeContainer.classList.add('fall-down');
+                letterOverlay.classList.add('show');
+            }, 600);
+        }
+    </script>
+</body>
+</html>
