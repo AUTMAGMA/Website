@@ -13,7 +13,7 @@
         body {
             margin: 0; padding: 0; height: 100vh;
             display: flex; justify-content: center; align-items: center;
-            /* Background Gradient Bergerak */
+            /* Background Gradient Malam Bergerak */
             background: linear-gradient(300deg, #0f2027, #203a43, #2c5364, #1e130c);
             background-size: 240% 240%;
             animation: gradientBG 15s ease infinite;
@@ -27,6 +27,16 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+
+        /* --- Partikel Bokeh (Latar Belakang) --- */
+        .bokeh { position: fixed; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .bokeh span { position: absolute; width: 10px; height: 10px; background: rgba(255, 255, 230, 0.15); border-radius: 50%; box-shadow: 0 0 10px rgba(255, 255, 230, 0.1); animation: moveParticles 15s infinite linear; }
+        .bokeh span:nth-child(1){left:10%; top:90%; animation-duration: 20s; width: 15px; height: 15px;}
+        .bokeh span:nth-child(2){left:30%; top:85%; animation-duration: 25s; width: 8px; height: 8px;}
+        .bokeh span:nth-child(3){left:70%; top:95%; animation-duration: 18s; width: 12px; height: 12px;}
+        .bokeh span:nth-child(4){left:50%; top:80%; animation-duration: 22s;}
+        .bokeh span:nth-child(5){left:85%; top:90%; animation-duration: 19s; width: 10px; height: 10px;}
+        @keyframes moveParticles { 0% { transform: translateY(0) translateX(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100vh) translateX(50px); opacity: 0; } }
 
         /* --- 1. WRAPPER AMPLOP (TAMPILAN AWAL) --- */
         .envelope-wrapper {
@@ -104,7 +114,7 @@
         /* --- 2. MODAL SURAT --- */
         .letter-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.85); /* Sedikit lebih gelap agar kertas menonjol */
             display: flex; justify-content: center; align-items: center;
             z-index: 20;
             opacity: 0; pointer-events: none;
@@ -114,7 +124,7 @@
         .letter-paper {
             width: 90%; max-width: 600px; height: 85vh;
             background: #fffaf0; border-radius: 8px; padding: 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 35px 60px rgba(0,0,0,0.6);
             position: relative; overflow-y: auto;
             transform: translateY(100vh) scale(0.8);
             transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -144,8 +154,10 @@
 <body>
 
     <audio id="bgMusic" loop>
-        <source src="Seisyunbutayaro.mp3" type="audio/mpeg">
+        <source src="lagu.mp3" type="audio/mpeg">
     </audio>
+
+    <div class="bokeh"><span></span><span></span><span></span><span></span><span></span></div>
 
     <div class="envelope-wrapper" id="envelopeWrapper">
         <div class="envelope-container" onclick="triggerOpenSequence()">
@@ -203,7 +215,7 @@
                     <strong>- 💖 -</strong>
                 </div>
 
-                <p style="text-align: center; margin-top: 50px; font-size: 0.8rem; color: #888;"></p>
+                <p style="text-align: center; margin-top: 50px; font-size: 0.8rem; color: #888;">Scroll untuk membaca</p>
             </div>
         </div>
     </div>
@@ -215,7 +227,7 @@
             const letterOverlay = document.getElementById('letterOverlay');
             const audio = document.getElementById('bgMusic');
 
-            // 1. Play Audio (Harus interaksi user agar jalan di HP)
+            // 1. Play Audio
             audio.play().catch(error => {
                 console.log("Audio autoplay failed:", error);
             });
